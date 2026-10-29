@@ -271,46 +271,59 @@ def prepare_metadata_display(df):
     return pd.DataFrame(records)
 
 # Session State Initialization
-if "selected_segments" not in st.session_state:
-    st.session_state["selected_segments"] = list(COLOR_MAP_RIL.keys())
-if "selected_operators" not in st.session_state:
-    st.session_state["selected_operators"] = list(COLOR_MAP_TEL.keys())
+default_range = (EXPECTED_YEARS[0], EXPECTED_YEARS[-1])
+if "saved_segments" not in st.session_state:
+    st.session_state["saved_segments"] = list(COLOR_MAP_RIL.keys())
+if "saved_operators" not in st.session_state:
+    st.session_state["saved_operators"] = list(COLOR_MAP_TEL.keys())
+
+# Sanitize timeline_range if already in session_state to guarantee valid 2-element range
+if "timeline_range" in st.session_state:
+    val = st.session_state["timeline_range"]
+    if not (isinstance(val, (tuple, list)) and len(val) == 2 and val[0] in EXPECTED_YEARS and val[1] in EXPECTED_YEARS):
+        st.session_state.pop("timeline_range", None)
 
 def reset_all_filters():
-    st.session_state["timeline_range"] = (EXPECTED_YEARS[0], EXPECTED_YEARS[-1])
-    st.session_state["selected_segments"] = list(COLOR_MAP_RIL.keys())
-    st.session_state["selected_operators"] = list(COLOR_MAP_TEL.keys())
+    st.session_state.pop("timeline_range", None)
+    st.session_state["saved_segments"] = list(COLOR_MAP_RIL.keys())
+    st.session_state["saved_operators"] = list(COLOR_MAP_TEL.keys())
+    st.session_state.pop("selected_segments", None)
+    st.session_state.pop("selected_operators", None)
 
 # Reset Button
 if st.sidebar.button("🔄 Reset All Filters", use_container_width=True, on_click=reset_all_filters):
     st.sidebar.success("All filters reset to defaults.")
 
 # Financial Year Range Selector
-# Explicitly initialize with 2-tuple on first render to configure a two-handled range slider
-default_range = (EXPECTED_YEARS[0], EXPECTED_YEARS[-1])
-slider_kwargs = {
-    "label": "Timeline Range:",
-    "options": EXPECTED_YEARS,
-    "key": "timeline_range"
-}
-if "timeline_range" not in st.session_state:
-    slider_kwargs["value"] = default_range
-
-selected_years_tuple = st.sidebar.select_slider(**slider_kwargs)
+# Always supply value=default_range to ensure Streamlit configures a two-handled range slider
+selected_years_tuple = st.sidebar.select_slider(
+    "Timeline Range:",
+    options=EXPECTED_YEARS,
+    value=default_range,
+    key="timeline_range"
+)
 active_years = resolve_active_years(selected_years_tuple, EXPECTED_YEARS)
 start_idx = EXPECTED_YEARS.index(active_years[0])
 end_idx = EXPECTED_YEARS.index(active_years[-1])
 
-# Dynamic Section-Specific Filters
-active_segments = st.session_state.get("selected_segments", list(COLOR_MAP_RIL.keys()))
-active_operators = st.session_state.get("selected_operators", list(COLOR_MAP_TEL.keys()))
+# Dynamic Section-Specific Filters with Cross-Section State Persistence
+def _sync_segments():
+    st.session_state["saved_segments"] = st.session_state["selected_segments"]
+
+def _sync_operators():
+    st.session_state["saved_operators"] = st.session_state["selected_operators"]
+
+active_segments = st.session_state["saved_segments"]
+active_operators = st.session_state["saved_operators"]
 
 if section == "🔄 Business Diversification (Q1)":
     st.sidebar.markdown("#### 🎯 Filter Business Segments:")
     active_segments = st.sidebar.multiselect(
         "Operating Segments:",
         options=list(COLOR_MAP_RIL.keys()),
-        key="selected_segments"
+        default=st.session_state["saved_segments"],
+        key="selected_segments",
+        on_change=_sync_segments
     )
 
 elif section == "📶 Jio & Telecom Dynamics (Q2)":
@@ -318,7 +331,9 @@ elif section == "📶 Jio & Telecom Dynamics (Q2)":
     active_operators = st.sidebar.multiselect(
         "Operators:",
         options=list(COLOR_MAP_TEL.keys()),
-        key="selected_operators"
+        default=st.session_state["saved_operators"],
+        key="selected_operators",
+        on_change=_sync_operators
     )
 
 st.sidebar.markdown("---")
@@ -404,7 +419,7 @@ elif section == "🔄 Business Diversification (Q1)":
         st.markdown("### 1.1 Segment Gross Revenue Trajectories (FY2017–FY2024)")
         fig_q1_line = create_q1_revenue_trend(df_ril_long, active_segments, active_years)
         if fig_q1_line:
-            st.plotly_chart(fig_q1_line, use_container_width=True)
+            st.plotly_chart(fig_q1_line, use_container_width=True, key="plotly_q1_revenue_trend")
             st.markdown("""
             <div class='insight-card'>
                 <strong>Key Insight:</strong> Retail expanded at a 7-year CAGR of <strong>37.06%</strong> (₹33,765 Cr to ₹306,786 Cr) while Digital Services grew at a 6-year CAGR of <strong>36.79%</strong> from its first full operating year FY2018 (₹20,154 Cr to ₹132,045 Cr), significantly outpacing traditional O2C growth (12.89% CAGR).
@@ -418,7 +433,7 @@ elif section == "🔄 Business Diversification (Q1)":
         st.markdown("### 1.2 Annual Segment Revenue Comparison (Grouped Bar)")
         fig_q1_bar = create_q1_grouped_bar(df_ril_long, active_segments, active_years)
         if fig_q1_bar:
-            st.plotly_chart(fig_q1_bar, use_container_width=True)
+            st.plotly_chart(fig_q1_bar, use_container_width=True, key="plotly_q1_grouped_bar")
             st.markdown("""
             <div class='insight-card'>
                 <strong>Key Insight:</strong> Side-by-side scale comparison shows the ratio between O2C and Retail revenue narrowing from <strong>7.16x</strong> in FY2017 to <strong>1.84x</strong> in FY2024, demonstrating structural corporate rebalancing.
@@ -432,7 +447,7 @@ elif section == "🔄 Business Diversification (Q1)":
         st.markdown("### 1.3 Business Mix Transformation & Revenue Composition (100% Stacked Area)")
         fig_q1_stack = create_q1_composition_stacked(df_ril_long, active_segments, active_years)
         if fig_q1_stack:
-            st.plotly_chart(fig_q1_stack, use_container_width=True)
+            st.plotly_chart(fig_q1_stack, use_container_width=True, key="plotly_q1_composition_stacked")
             st.markdown("""
             <div class='insight-card'>
                 <strong>Key Insight:</strong> Consumer-facing businesses (Retail + Jio) expanded from <strong>10.59%</strong> of gross revenue in FY2017 to <strong>43.88%</strong> in FY2024 (+3,329 basis points), while O2C contribution contracted from <strong>73.20%</strong> to <strong>56.47%</strong>.
@@ -469,7 +484,7 @@ elif section == "📶 Jio & Telecom Dynamics (Q2)":
         st.markdown("### 2.1 Indian Telecom Wireless Subscriber Trajectories (FY2017–FY2024)")
         fig_q2_line = create_q2_subscribers_trend(df_tel_long, active_operators, active_years)
         if fig_q2_line:
-            st.plotly_chart(fig_q2_line, use_container_width=True)
+            st.plotly_chart(fig_q2_line, use_container_width=True, key="plotly_q2_subscribers_trend")
             st.markdown("""
             <div class='insight-card'>
                 <strong>Key Insight:</strong> Jio's wireless subscriber base expanded at a 7-year CAGR of <strong>23.26%</strong> (108.68M to 469.73M), while Airtel maintained steady growth (5.03% CAGR) and Vodafone Idea declined (-10.30% CAGR post-FY18 merger peak).
@@ -483,7 +498,7 @@ elif section == "📶 Jio & Telecom Dynamics (Q2)":
         st.markdown("### 2.2 Operator Market Share Evolution (100% Stacked Area)")
         fig_q2_share = create_q2_market_share_stacked(df_tel_long, active_operators, active_years)
         if fig_q2_share:
-            st.plotly_chart(fig_q2_share, use_container_width=True)
+            st.plotly_chart(fig_q2_share, use_container_width=True, key="plotly_q2_market_share_stacked")
             st.markdown("""
             <div class='insight-card'>
                 <strong>Key Insight:</strong> Jio's wireless market share increased from <strong>9.29%</strong> in FY2017 to <strong>40.31%</strong> in FY2024 (+3,102 bps), while combined 2-firm concentration (Jio + Airtel) reached <strong>73.42%</strong>.
@@ -517,7 +532,7 @@ elif section == "🛍️ Reliance Retail Reach (Q3)":
     st.markdown("### 3.1 Retail Revenue Growth vs Physical Store Expansion (Dual-Axis)")
     fig_q3_dual = create_q3_revenue_vs_stores_dual(df_ret_wide, active_years)
     if fig_q3_dual:
-        st.plotly_chart(fig_q3_dual, use_container_width=True)
+        st.plotly_chart(fig_q3_dual, use_container_width=True, key="plotly_q3_revenue_vs_stores")
         st.markdown("""
         <div class='insight-card'>
             <strong>Key Insight:</strong> Store count grew <strong>5.21x</strong> (3,616 to 18,837 stores, 26.59% CAGR) while Revenue grew <strong>9.09x</strong> (₹33,765 Cr to ₹306,786 Cr, 37.06% CAGR), with revenue per store rising from <strong>₹9.34 Cr to ₹16.29 Cr/store</strong> (+74.42% productivity gain).
@@ -531,7 +546,7 @@ elif section == "🛍️ Reliance Retail Reach (Q3)":
     st.markdown("### 3.2 Registered Customer Base & Operational Floor Space Scaling (Dual-Axis)")
     fig_q3_cust = create_q3_customers_vs_area_dual(df_ret_wide, active_years)
     if fig_q3_cust:
-        st.plotly_chart(fig_q3_cust, use_container_width=True)
+        st.plotly_chart(fig_q3_cust, use_container_width=True, key="plotly_q3_customers_vs_area")
         st.markdown("""
         <div class='insight-card'>
             <strong>Key Insight:</strong> Registered customer base grew <strong>8.69x</strong> (35.0M to 304.0M, 36.18% CAGR) while operational retail floor area expanded <strong>5.86x</strong> (13.5M to 79.1M sq ft, 28.73% CAGR).

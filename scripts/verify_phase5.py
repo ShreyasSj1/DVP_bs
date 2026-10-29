@@ -173,9 +173,44 @@ def run_checks():
     assert (meta_disp["Data Span"] == "FY2017–FY2024").all(), "Expected FY2017–FY2024 data span"
     print(" -> Metadata display schema mapping and fallbacks verified cleanly.")
 
+    # 7. Multi-Section Navigation, Timeline Preservation & Filter Persistence Check
+    print("\n[CHECK 7] Verifying Multi-Section Navigation, Timeline Preservation & Filter Persistence...")
+    import json
+    from streamlit.testing.v1 import AppTest
+
+    at = AppTest.from_file(os.path.join(BASE_DIR, "app.py"))
+    at.run()
+    assert at.session_state["timeline_range"] == ("FY2017", "FY2024")
+
+    # Navigate to Q2: verify all 8 points per operator are rendered
+    at.sidebar.radio[0].set_value("📶 Jio & Telecom Dynamics (Q2)").run()
+    assert at.session_state["timeline_range"] == ("FY2017", "FY2024")
+    charts_q2 = at.get("plotly_chart")
+    for c in charts_q2:
+        spec = json.loads(c.proto.spec)
+        for trace in spec.get("data", []):
+            assert len(trace.get("x", [])) == 8, f"Trace {trace.get('name')} in Q2 does not have 8 points"
+
+    # Test sub-range FY2019-FY2022 across section switches
+    at.sidebar.select_slider[0].set_value(("FY2019", "FY2022")).run()
+    at.sidebar.radio[0].set_value("🔄 Business Diversification (Q1)").run()
+    assert at.session_state["timeline_range"] == ("FY2019", "FY2022")
+    at.sidebar.radio[0].set_value("🛍️ Reliance Retail Reach (Q3)").run()
+    assert at.session_state["timeline_range"] == ("FY2019", "FY2022")
+    at.sidebar.radio[0].set_value("📶 Jio & Telecom Dynamics (Q2)").run()
+    assert at.session_state["timeline_range"] == ("FY2019", "FY2022")
+
+    # Reset button test
+    at.sidebar.button[0].click().run()
+    assert at.session_state["timeline_range"] == ("FY2017", "FY2024")
+    assert len(at.session_state["saved_segments"]) == 4
+    assert len(at.session_state["saved_operators"]) == 4
+    print(" -> AppTest navigation, timeline range preservation, and filter reset verified cleanly.")
+
     print("\n" + "=" * 70)
     print("ALL PHASE 5 AUTOMATED VERIFICATION CHECKS PASSED SUCCESSFULLY (100%)")
     print("=" * 70)
 
 if __name__ == "__main__":
     run_checks()
+
