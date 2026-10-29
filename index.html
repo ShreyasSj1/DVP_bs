@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RELYNDIA — Visualizing Reliance's Business and Market Footprint</title>
+    <style>
+        :root {
+            --primary: #0A58CA;
+            --primary-hover: #084298;
+            --secondary: #6C757D;
+            --bg: #F8F9FA;
+            --card-bg: #FFFFFF;
+            --border: #DEE2E6;
+            --text: #212529;
+            --accent-bg: #E9ECEF;
+            --panel-bg: #FBFDFE;
+            --panel-border: #BAD5FF;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 24px;
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            background: var(--card-bg);
+            padding: 24px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            margin-bottom: 24px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+        }
+
+        h1 {
+            margin: 0 0 8px 0;
+            color: var(--primary);
+            font-size: 1.8rem;
+        }
+
+        .subtitle {
+            margin: 0;
+            color: var(--secondary);
+            font-weight: 500;
+        }
+
+        .nav-pills {
+            display: flex;
+            gap: 10px;
+            margin-top: 16px;
+            flex-wrap: wrap;
+        }
+
+        .nav-btn {
+            background: var(--accent-bg);
+            color: var(--text);
+            border: 1px solid var(--border);
+            padding: 8px 16px;
+            border-radius: 20px;
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .nav-btn:hover, .nav-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .section-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 24px;
+            margin-bottom: 32px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+        }
+
+        .section-card h2 {
+            margin-top: 0;
+            color: var(--primary);
+            border-bottom: 2px solid var(--accent-bg);
+            padding-bottom: 10px;
+            font-size: 1.35rem;
+        }
+
+        .chart-box {
+            margin-top: 20px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            overflow: hidden;
+            background: #fff;
+        }
+
+        .chart-header {
+            background: var(--accent-bg);
+            padding: 10px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .chart-header-actions {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .chart-header a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        .chart-header a:hover {
+            text-decoration: underline;
+        }
+
+        .chart-iframe {
+            width: 100%;
+            height: 540px;
+            border: none;
+        }
+
+        .insight-box {
+            background: #F1F8FF;
+            border-left: 4px solid var(--primary);
+            padding: 12px 16px;
+            margin-top: 12px;
+            font-size: 0.92rem;
+            border-radius: 0 4px 4px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .explanation-btn {
+            background: #FFFFFF;
+            color: var(--primary);
+            border: 1.5px solid var(--primary);
+            padding: 6px 14px;
+            border-radius: 6px;
+            font-size: 0.88rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .explanation-btn:hover {
+            background: var(--primary);
+            color: #FFFFFF;
+        }
+
+        .explanation-panel {
+            background: var(--panel-bg);
+            border: 1px solid var(--panel-border);
+            border-radius: 6px;
+            padding: 20px;
+            margin-top: 14px;
+            box-shadow: 0 4px 12px rgba(10, 88, 202, 0.05);
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .explanation-title {
+            margin: 0 0 16px 0;
+            font-size: 1.1rem;
+            color: var(--primary);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--panel-border);
+            padding-bottom: 8px;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            color: var(--secondary);
+            font-size: 0.9rem;
+            cursor: pointer;
+            font-weight: bold;
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+
+        .close-btn:hover {
+            background: #E2E8F0;
+            color: #DC3545;
+        }
+
+        .exp-section {
+            margin-bottom: 14px;
+        }
+
+        .exp-heading {
+            font-weight: 700;
+            color: #1E293B;
+            font-size: 0.95rem;
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .exp-body {
+            font-size: 0.9rem;
+            color: #334155;
+            margin-left: 4px;
+        }
+
+        .exp-body ul {
+            margin: 4px 0 6px 20px;
+            padding: 0;
+        }
+
+        .exp-body li {
+            margin-bottom: 4px;
+        }
+
+        .metric-badge {
+            background: #E0E7FF;
+            color: #3730A3;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 600;
+            font-family: ui-monospace, monospace;
+            font-size: 0.85rem;
+        }
+
+        .takeaway-box {
+            background: #ECFDF5;
+            border-left: 4px solid #10B981;
+            padding: 10px 14px;
+            margin-top: 10px;
+            font-size: 0.92rem;
+            color: #065F46;
+            border-radius: 0 4px 4px 0;
+        }
+
+        .caveat-box {
+            background: #FFFBEB;
+            border-left: 4px solid #F59E0B;
+            padding: 10px 14px;
+            margin-top: 10px;
+            font-size: 0.88rem;
+            color: #92400E;
+            border-radius: 0 4px 4px 0;
+        }
+
+        footer {
+            text-align: center;
+            padding: 24px;
+            color: var(--secondary);
+            font-size: 0.85rem;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>RELYNDIA — Visualizing Reliance's Business and Market Footprint</h1>
+        <p class="subtitle">BISL504 Data Visualization Lab | Interactive Analysis & Verification Interface</p>
+        
+        <div class="nav-pills">
+            <a href="#q1" class="nav-btn">Q1: Reliance Diversification (3 Charts)</a>
+            <a href="#q2" class="nav-btn">Q2: Telecom Market Dynamics (2 Charts)</a>
+            <a href="#q3" class="nav-btn">Q3: Retail & Consumer Reach (2 Charts)</a>
+        </div>
+    </header>
+
+    <!-- ==================================================================== -->
+    <!-- QUESTION 1 SECTION                                                   -->
+    <!-- ==================================================================== -->
+    <section id="q1" class="section-card">
+        <h2>📊 Question 1: How has Reliance diversified across its major business segments over time?</h2>
+        <p>This section explores how Reliance transformed from an energy/refining heavy conglomerate (Oil-to-Chemicals / O2C) into a balanced consumer-tech group (Reliance Retail + Digital Services / Jio).</p>
+
+        <!-- Chart 1.1 -->
+        <div class="chart-box">
+            <div class="chart-header">
+                <span>1.1 Segment Gross Revenue Trajectories (FY2017–FY2024)</span>
+                <div class="chart-header-actions">
+                    <a href="outputs/reliance/q1_segment_revenue_trend.html" target="_blank">↗ Open Fullscreen</a>
+                </div>
+            </div>
+            <iframe class="chart-iframe" src="outputs/reliance/q1_segment_revenue_trend.html"></iframe>
+        </div>
+        <div class="insight-box">
+            <div>
+                <strong>Key Insight:</strong> Retail expanded at a 7-year CAGR of <strong>37.05%</strong> (₹33,765 Cr to ₹306,786 Cr) while Digital Services grew at a 6-year CAGR of <strong>36.79%</strong> from its first full operating year FY2018 (₹20,154 Cr to ₹132,045 Cr), significantly outpacing traditional O2C growth (12.89% CAGR).
+            </div>
+            <button class="explanation-btn" onclick="toggleExplanation('exp-1-1')">📋 [ Detailed Explanation ]</button>
+        </div>
+
+        <!-- Explanation Panel 1.1 -->
+        <div id="exp-1-1" class="explanation-panel" style="display: none;">
+            <div class="explanation-title">
+                <span>Detailed Explanation: Segment Gross Revenue Trajectories</span>
+                <button class="close-btn" onclick="toggleExplanation('exp-1-1')">✖ Close</button>
+            </div>
+            <div class="exp-section">
+                <div class="exp-heading">A. What the Chart Shows</div>
+                <div class="exp-body">An interactive multi-line time series tracking annual gross revenue (in ₹ Crore) across Reliance's four primary reporting business segments: Oil-to-Chemicals (O2C), Reliance Retail, Digital Services (Jio Platforms), and Financial Services & Others between FY2017 and FY2024.</div>
+            </div>
+            <div class="exp-section">
+                <div class="exp-heading">B. Overall Trend</div>
+                <div class="exp-body">All core operating segments demonstrated substantial top-line expansion over the 8-year period. However, the trajectory slopes of consumer-facing businesses (Retail and Jio) were significantly steeper than the traditional energy business, leading to an increasingly balanced conglomerate revenue structure.</div>
+            </div>
+            <div class="exp-section">
+                <div class="exp-heading">C. Segment-by-Segment Analysis</div>
+                <div class="exp-body">
+                    <ul>
+                        <li><strong>Oil-to-Chemicals (O2C):</strong> Expanded from <span class="metric-badge">₹2,41,674 Cr</span> in FY2017 to <span class="metric-badge">₹5,64,748 Cr</span> in FY2024. It remains the largest single revenue contributor but exhibits cyclical fluctuations linked to global crude refining margins.</li>
+                        <li><strong>Reliance Retail:</strong> Scaled dramatically from <span class="metric-badge">₹33,765 Cr</span> in FY2017 to <span class="metric-badge">₹3,06,786 Cr</span> in FY2024, expanding 9.1-fold over 7 years.</li>
+                        <li><strong>Digital Services (Jio Platforms):</strong> Launched commercially in September 2016 (FY2017 revenue: ₹1,207 Cr), expanding to <span class="metric-badge">₹20,154 Cr</span> in FY2018 (first full year) and reaching <span class="metric-badge">₹1,32,045 Cr</span> in FY2024.</li>
+                        <li><strong>Financial Services & Others:</strong> Moved from <span class="metric-badge">₹53,534 Cr</span> in FY2017 to <span class="metric-badge">₹35,457 Cr</span> in FY2024, reflecting corporate reorganizations and the demerger of Jio Financial Services in FY2024.</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="exp-section">
+                <div class="exp-heading">D. Important Growth and Decline Periods</div>
+                <div class="exp-body">
+                    <ul>
+                        <li><strong>FY2017–FY2020 (Consumer Takeoff):</strong> Rapid scaling phase where Retail grew 4.8x and Jio scaled from rollout to ₹68,462 Cr.</li>
+                        <li><strong>FY2021 (COVID-19 Pandemic Divergence):</strong> O2C revenue dropped by <span class="metric-badge">-₹96,476 Cr (-25.7%)</span> due to global fuel demand destruction during lockdowns. Retail saw a mild dip of <span class="metric-badge">-3.3%</span>, while Digital Services revenue grew by <span class="metric-badge">+₹18,031 Cr (+26.3%)</span> driven by surging stay-at-home data demand.</li>
+                        <li><strong>FY2022–FY2024 (Post-Pandemic Rebound):</strong> Strong recovery across all verticals as consolidated gross revenue crossed ₹10 Lakh Crore.</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="exp-section">
+                <div class="exp-heading">E. Quantitative Changes (Calculated from Data)</div>
+                <div class="exp-body">
+                    <ul>
+                        <li><strong>Reliance Retail 7-Year CAGR (FY17–FY24):</strong> <span class="metric-badge">37.05%</span> (Absolute increase: +₹2,73,021 Cr, +808.58%).</li>
+                        <li><strong>Digital Services 6-Year CAGR (FY18 full year to FY24):</strong> <span class="metric-badge">36.79%</span> (Absolute increase: +₹1,11,891 Cr, +555.18%).</li>
+                        <li><strong>O2C 7-Year CAGR (FY17–FY24):</strong> <span class="metric-badge">12.89%</span> (Absolute increase: +₹3,23,074 Cr, +133.68%).</li>
+                        <li><strong>Largest Single-Year Increase:</strong> O2C in FY2022 (+₹1,88,173 Cr post-lockdown rebound).</li>
+                        <li><strong>Deepest Single-Year Decrease:</strong> O2C in FY2021 (-₹96,476 Cr pandemic crude oil drop).</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="exp-section">
+                <div class="exp-heading">F. Growth Factors (Documented Business Context)</div>
+                <div class="exp-body">
+                    <ul>
+                        <li><em>Data observation:</em> Retail and Digital Services grew at persistent double-digit rates year-over-year.</li>
+                        <li><em>Documented context:</em> RIL Integrated Annual Reports attribute Retail growth to rapid physical store additions (3,616 to 18,837 stores), expanding grocery/electronics formats, and omni-channel digital commerce. Digital Services growth is documented in annual filings as resulting from pan-India 4G/5G mobile subscriber adoption (108M to 470M users) and high data consumption. O2C revenue trends were driven by global crude refining margins (GRMs) and product crack spreads.</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="takeaway-box">
+                <strong>Key Takeaway:</strong> While Oil-to-Chemicals remains Reliance's largest single revenue stream, the primary engine of top-line expansion between FY2017 and FY2024 shifted decisively toward consumer-facing Retail and Digital verticals.
+            </div>
+            <div class="caveat-box">
+                <strong>Data Limitations & Caveats:</strong> Pre-FY2020 O2C figures combine previously separated Refining and Petrochemicals reporting lines to maintain consistency with RIL's unified segment reporting format introduced in FY2020.
+            </div>
+        </div>
+
+        <!-- Chart 1.2 -->
+        <div class="chart-box" style="margin-top: 30px;">
+            <div class="chart-header">
+                <span>1.2 Annual Segment Revenue Comparison (Grouped Bar)</span>
+                <div class="chart-header-actions">
+                    <a href="outputs/reliance/q1_segment_comparison_grouped_bar.html" target="_blank">↗ Open Fullscreen</a>
+                </div>
+            </div>
+            <iframe class="chart-iframe" src="outputs/reliance/q1_segment_comparison_grouped_bar.html"></iframe>
+        </div>
+        <div class="insight-box">
+            <div>
+                <strong>Key Insight:</strong> Side-by-side scale comparison shows the ratio between O2C and Retail revenue narrowing from <strong>7.16x</strong> in FY2017 to <strong>1.84x</strong> in FY2024, proving structural rebalancing.
+            </div>
+            <button class="explanation-btn" onclick="toggleExplanation('exp-1-2')">📋 [ Detailed Explanation ]</button>
+        </div>
+
+        <!-- Explanation Panel 1.2 -->
+        <div id="exp-1-2" class="explanation-panel" style="display: none;">
+            <div class="explanation-title">
+                <span>Detailed Explanation: Annual Segment Revenue Comparison</span>
+                <button class="close-btn" onclick="toggleExplanation('exp-1-2')">✖ Close</button>
+            </div>
+            <div class="exp-section">
+                <div class="exp-heading">A. What the Chart Shows</div>
+                <div class="exp-body">A grouped bar chart comparing the absolute revenue scale (₹ Crore) of all 4 reporting segments side-by-side across each fiscal year from FY2017 to FY2024.</div>
+            </div>
+            <div class="exp-section">
+                <div class="exp-heading">B. Overall Trend</div>
+                <div class="exp-body">Visualizes the narrowing gap in absolute scale between industrial energy businesses and consumer-facing retail and telecom businesses.</div>
+            </div>
+            <div class="exp-section">
+                <div class="exp-heading">C. Segment-by-Segment Analysis</div>
+                <div class="exp-body">
+                    <ul>
+                        <li>In FY2017, O2C (₹2,41,674 Cr) dwarfed all other segments combined. Retail was ₹33,765 Cr and Digital Services was ₹1,207 Cr.</li>
+                        <li>By FY2024, Retail reached ₹3,06,786 Cr and Digital Services reached ₹1,32,045 Cr, establishing multi-pillar corporate scale.</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="exp-section">
+                <div class="exp-heading">D. Quantitative Changes (Calculated from Data)</div>
+                <div class="exp-body">
+                    <ul>
+                        <li><strong>Scale Ratio (O2C : Retail):</strong> Contracted from <span class="metric-badge">7.16x</span> in FY2017 to <span class="metric-badge">1.84x</span> in FY2024.</li>
+                        <li><strong>Non-O2C Combined Revenue:</strong> Expanded from <span class="metric-badge">₹88,506 Cr (FY17)</span> to <span class="metric-badge">₹4,35,374 Cr (FY24)</span> (+391.9%).</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="exp-section">
+                <div class="exp-heading">E. Growth Factors (Documented Context)</div>
+                <div class="exp-body">
+                    <ul>
+                        <li><em>Data observation:</em> Retail and Jio bars showed progressive year-on-year height increases while O2C bar heights moved in cyclical steps.</li>
+                        <li><em>Documented context:</em> RIL Board Reports identify this as the planned outcome of strategic capital expenditure redeployed from mature refining operations into high-growth domestic consumer markets.</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="takeaway-box">
+                <strong>Key Takeaway:</strong> Direct yearly comparison confirms that Reliance has evolved into a balanced multi-segment conglomerate where consumer verticals command scale comparable to traditional industrial operations.
+            </div>
+            <div class="caveat-box">
+                <strong>Data Limitations:</strong> Annual grouped bars do not show intra-year seasonality such as festive quarter retail sales spikes.
+            </div>
+        </div>
+
+        <!-- Chart 1.3 -->
+        <div class="chart-box" style="margin-top: 30px;">
+            <div class="chart-header">
+                <span>1.3 Business Mix Transformation & Revenue Composition (100% Stacked Area)</span>
+                <div class="chart-header-actions">
+                    <a href="outputs/reliance/q1_business_composition_100pct_stacked.html" target="_blank">↗ Open Fullscreen</a>
+                </div>
+            </div>
+            <iframe class="chart-iframe" src="outputs/reliance/q1_business_composition_100pct_stacked.html"></iframe>
+        </div>
+        <div class="insight-box">
+            <div>
+                <strong>Key Insight:</strong> Consumer-facing businesses (Retail + Jio) expanded from <strong>10.59%</strong> of gross revenue in FY2017 to <strong>43.88%</strong> in FY2024 (+3,329 basis points), while O2C contribution contracted from <strong>73.20%</strong> to <strong>56.47%</strong>.
+            </div>
+            <button class="explanation-btn" onclick="toggleExplanation('exp-1-3')">📋 [ Detailed Explanation ]</button>
+        </div>
+
+        <!-- Explanation Panel 1.3 -->
+        <div id="exp-1-3" class="explanation-panel" style="display: none;">
+            <div class="explanation-title">
+                <span>Detailed Explanation: Business Mix Transformation</span>
+                <button class="close-btn" onclick="toggleExplanation('exp-1-3')">✖ Close</button>
+            </div>
+            <div class="exp-section">
+                <div class="exp-heading">A. What the Chart Shows</div>
+                <div class="exp-body">A 100% normalized stacked area chart displaying the proportionate contribution (%) of each business segment to consolidated gross revenue from FY2017 to FY2024.</div>
+            </div>
+            <div class="exp-section">
+                <div class="exp-heading">B. Overall Trend</div>
+                <div class="exp-body">A clear structural transition where the red (Retail) and blue (Jio) consumer bands steadily widen, displacing the dominant amber (O2C) energy band over the 8-year timeline.</div>
+            </div>
+            <div class="exp-section">
+                <div class="exp-heading">C. Segment-by-Segment Percentage Shifts</div>
+                <div class="exp-body">
+                    <ul>
+                        <li><strong>O2C Contribution:</strong> Shifted from <span class="metric-badge">73.20%</span> in FY2017 down to <span class="metric-badge">56.47%</span> in FY2024 (-1,673 basis points).</li>
+                        <li><strong>Retail Contribution:</strong> Tripled from <span class="metric-badge">10.23%</span> in FY2017 to <span class="metric-badge">30.67%</span> in FY2024 (+2,044 basis points).</li>
+                        <li><strong>Digital Services Contribution:</strong> Rose from <span class="metric-badge">0.37%</span> in FY2017 to <span class="metric-badge">13.20%</span> in FY2024 (+1,283 basis points).</li>
+                        <li><strong>Financial Services & Others:</strong> Moved from <span class="metric-badge">16.21%</span> to <span class="metric-badge">3.55%</span>.</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="exp-section">
+                <div class="exp-heading">D. Quantitative Changes (Calculated from Data)</div>
+                <div class="exp-body">
+                    <ul>
+                        <li><strong>Total Consumer Share (Retail + Digital):</strong> Expanded from <span class="metric-badge">10.59% (FY17)</span> to <span class="metric-badge">43.88% (FY24)</span> (+3,329 bps shift).</li>
+                        <li><strong>Peak Consumer Contribution Year:</strong> FY2021 (<span class="metric-badge">45.28%</span>), when O2C revenue was suppressed during pandemic lockdowns.</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="exp-section">
+                <div class="exp-heading">E. Growth Factors (Documented Context)</div>
+                <div class="exp-body">
+                    <ul>
+                        <li><em>Data observation:</em> The composition mix changed permanently, not temporarily reverting back after the FY2021 pandemic period.</li>
+                        <li><em>Documented context:</em> RIL investor presentations explicitly cite the strategic goal of establishing consumer businesses as equal co-drivers of profitability alongside energy.</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="takeaway-box">
+                <strong>Key Takeaway:</strong> The 100% stacked area chart provides definitive visual and mathematical proof of Reliance's portfolio diversification, transitioning from a single-industry firm into a consumer-tech and industrial conglomerate.
+            </div>
+            <div class="caveat-box">
+                <strong>Data Limitations:</strong> Proportional share is influenced by denominator swings; a spike in crude oil prices raises O2C revenue, which mechanically lowers the percentage share of consumer verticals even if retail sales grow.
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================================================================== -->
+    <!-- QUESTION 2 SECTION                                                   -->
+    <!-- ==================================================================== -->
+    <section id="q2" class="section-card">
+        <h2>📶 Question 2: How did the growth of Jio coincide with changes in India's telecom market?</h2>
+        <p>This section examines multi-operator subscriber trajectories and market share dynamics based on official TRAI filings (FY2017–FY2024).</p>
+
+        <!-- Chart 2.1 -->
+        <div class="chart-box">
+            <div class="chart-header">
+                <span>2.1 Indian Telecom Wireless Subscriber Trajectories</span>
+                <div class="chart-header-actions">
+                    <a href="outputs/telecom/q2_telecom_subscribers_multiline.html" target="_blank">↗ Open Fullscreen</a>
+                </div>
+            </div>
+            <iframe class="chart-iframe" src="outputs/telecom/q2_telecom_subscribers_multiline.html"></iframe>
+        </div>
+        <div class="insight-box">
+            <div>
+                <strong>Key Insight:</strong> Jio's wireless subscriber base expanded at a 7-year CAGR of <strong>23.26%</strong> (108.68M to 469.73M), while Airtel maintained steady growth (5.03% CAGR) and Vodafone Idea declined (-8.21% CAGR post-FY18 peak).
+            </div>
+            <button class="explanation-btn" onclick="toggleExplanation('exp-2-1')">📋 [ Detailed Explanation ]</button>
+        </div>
+
+        <!-- Explanation Panel 2.1 -->
+        <div id="exp-2-1" class="explanation-panel" style="display: none;">
+            <div class="explanation-title">
+                <span>Detailed Explanation: Wireless Subscriber Trajectories</span>
+                <button class="close-btn" onclick="toggleExplanation('exp-2-1')">✖ Close</button>
+            </div>
+            <div class="exp-section">
+                <div class="exp-heading">A. What the Chart Shows</div>
+                <div class="exp-body">A multi-line time series tracking total wireless subscriber counts (in Millions) for Reliance Jio, Bharti Airtel, Vodafone Idea (Vi), and BSNL/MTNL as reported by TRAI at the end of each fiscal year (March 31) from FY2017 to FY2024.</div>
+            </div>
+            <div class="exp-section">
+                <div class="exp-heading">B. Overall Trend</div>
+                <div class="exp-body">Rapid initial subscriber expansion for Jio, steady growth for Bharti Airtel, and sustained contraction for Vodafone Idea and BSNL, while total industry subscribers remained stable around 1.14B to 1.18B.</div>
+            </div>
+            <div class="exp-section">
+                <div class="exp-heading">C. Operator-by-Operator Analysis</div>
+                <div class="exp-body">
+                    <ul>
+                        <li><strong>Reliance Jio:</strong> Expanded from <span class="metric-badge">108.68 Million</span> in FY2017 to <span class="metric-badge">469.73 Million</span> in FY2024 (+361.05M subscribers).</li>
+                        <li><strong>Bharti Airtel:</strong> Grew steadily from <span class="metric-badge">273.65 Million</span> in FY2017 to <span class="metric-badge">385.83 Million</span> in FY2024 (+112.18M subscribers).</li>
+                        <li><strong>Vodafone Idea (Vi):</strong> Peaked at <span class="metric-badge">408.06 Million</span> in FY2018 post-merger, declining to <span class="metric-badge">212.64 Million</span> in FY2024 (-195.42M subscribers).</li>
+                        <li><strong>BSNL / MTNL:</strong> Shifted from <span class="metric-badge">104.58 Million</span> in FY2017 to <span class="metric-badge">90.11 Million</span> in FY2024 (-14.47M subscribers).</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="exp-section">
+                <div class="exp-heading">D. Important Growth and Decline Periods</div>
+                <div class="exp-body">
+                    <ul>
+                        <li><strong>FY2017–FY2020 (4G Mass Adoption):</strong> Jio added +278.84M subscribers in 3 years.</li>
+                        <li><strong>FY2022 (Inactive SIM Cleanup):</strong> Jio subscriber count temporarily contracted from 422.92M to 410.19M (-12.73M) due to systematic deactivation of low-ARPU inactive SIMs.</li>
+                        <li><strong>FY2023–FY2024 (5G Rollout Phase):</strong> Jio resumed growth, crossing 469M subscribers.</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="exp-section">
+                <div class="exp-heading">E. Quantitative Changes (Calculated from Data)</div>
+                <div class="exp-body">
+                    <ul>
+                        <li><strong>Jio Subscriber CAGR (FY17–FY24):</strong> <span class="metric-badge">23.26%</span> (+332.21% net expansion).</li>
+                        <li><strong>Airtel Subscriber CAGR (FY17–FY24):</strong> <span class="metric-badge">5.03%</span> (+41.00% net expansion).</li>
+                        <li><strong>Vi Subscriber CAGR (FY18 peak to FY24):</strong> <span class="metric-badge">-8.21%</span> (-47.89% net contraction).</li>
+                        <li><strong>Total Industry Wireless Base:</strong> Moved from 1,170.17M (FY17) to 1,165.17M (FY24) (-0.07% CAGR).</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="exp-section">
+                <div class="exp-heading">F. Growth Factors (Documented Context)</div>
+                <div class="exp-body">
+                    <ul>
+                        <li><em>Data observation:</em> Jio subscriber growth occurred concurrently with subscriber contractions at Vi and BSNL, while total industry subscribers remained flat.</li>
+                        <li><em>Documented context:</em> TRAI reports document that subscriber migrations coincided with pan-India 4G coverage rollout, VoLTE adoption, bundled data tariffs, and Mobile Number Portability (MNP) shifts.</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="takeaway-box">
+                <strong>Key Takeaway:</strong> Jio's expansion from 108M to 470M subscribers coincided with a major consolidation of India's wireless subscriber base into two primary private operators (Jio and Airtel).
+            </div>
+            <div class="caveat-box">
+                <strong>Data Limitations:</strong> Subscriber counts represent Total Wireless Subscribers (VLR active + HLR registered SIMs) as recorded by TRAI at fiscal year-end (March 31).
+            </div>
+        </div>
+
+        <!-- Chart 2.2 -->
+        <div class="chart-box" style="margin-top: 30px;">
+            <div class="chart-header">
+                <span>2.2 Operator Market Share Evolution (100% Stacked Area)</span>
+                <div class="chart-header-actions">
+                    <a href="outputs/telecom/q2_telecom_market_share_stacked_area.html" target="_blank">↗ Open Fullscreen</a>
+                </div>
+            </div>
+            <iframe class="chart-iframe" src="outputs/telecom/q2_telecom_market_share_stacked_area.html"></iframe>
+        </div>
+        <div class="insight-box">
+            <div>
+                <strong>Key Insight:</strong> Jio's wireless market share increased from <strong>9.29%</strong> in FY2017 to <strong>40.31%</strong> in FY2024 (+3,102 bps), while combined 2-firm concentration (Jio + Airtel) reached <strong>73.42%</strong>.
+            </div>
+            <button class="explanation-btn" onclick="toggleExplanation('exp-2-2')">📋 [ Detailed Explanation ]</button>
+        </div>
+
+        <!-- Explanation Panel 2.2 -->
+        <div id="exp-2-2" class="explanation-panel" style="display: none;">
+            <div class="explanation-title">
+                <span>Detailed Explanation: Operator Market Share Evolution</span>
+                <button class="close-btn" onclick="toggleExplanation('exp-2-2')">✖ Close</button>
+            </div>
+            <div class="exp-section">
+                <div class="exp-heading">A. What the Chart Shows</div>
+                <div class="exp-body">A 100% stacked area chart tracking the relative percentage market share of wireless subscribers across all major Indian telecom operators from FY2017 to FY2024.</div>
+            </div>
+            <div class="exp-section">
+                <div class="exp-heading">B. Overall Trend</div>
+                <div class="exp-body">The Indian telecom industry consolidated from a multi-operator competitive landscape into a market structure where the top two private operators command nearly three-quarters of all subscribers.</div>
+            </div>
+            <div class="exp-section">
+                <div class="exp-heading">C. Operator-by-Operator Market Share Shifts</div>
+                <div class="exp-body">
+                    <ul>
+                        <li><strong>Reliance Jio:</strong> Increased from <span class="metric-badge">9.29% (FY17)</span> to <span class="metric-badge">40.31% (FY24)</span> (+3,102 basis points).</li>
+                        <li><strong>Bharti Airtel:</strong> Rose from <span class="metric-badge">23.39% (FY17)</span> to <span class="metric-badge">33.11% (FY24)</span> (+972 basis points).</li>
+                        <li><strong>Vodafone Idea (Vi):</strong> Contracted from <span class="metric-badge">33.08% (FY17)</span> to <span class="metric-badge">18.25% (FY24)</span> (-1,483 basis points).</li>
+                        <li><strong>BSNL / MTNL:</strong> Moved from <span class="metric-badge">8.94% (FY17)</span> to <span class="metric-badge">7.73% (FY24)</span> (-121 basis points).</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="exp-section">
+                <div class="exp-heading">D. Quantitative Changes (Calculated from Data)</div>
+                <div class="exp-body">
+                    <ul>
+                        <li><strong>Top 2 Market Concentration Ratio (CR2 = Jio + Airtel):</strong> Rose from <span class="metric-badge">32.68% (FY17)</span> to <span class="metric-badge">73.42% (FY24)</span>.</li>
+                        <li><strong>Private Sector Total Share (Jio + Airtel + Vi):</strong> Rose from <span class="metric-badge">65.76% (FY17)</span> to <span class="metric-badge">91.67% (FY24)</span>.</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="exp-section">
+                <div class="exp-heading">E. Growth Factors (Documented Context)</div>
+                <div class="exp-body">
+                    <ul>
+                        <li><em>Data observation:</em> Market share gains were concentrated in Jio and Airtel.</li>
+                        <li><em>Documented context:</em> TRAI Performance Indicator Reports document that smaller operators (Aircel, RCom, Tata Tele) exited the market between FY18–FY20, transferring subscriber shares to capitalized 4G network operators.</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="takeaway-box">
+                <strong>Key Takeaway:</strong> The telecom market share evolution illustrates industry consolidation, with Jio emerging as the market leader with over 40% subscriber market share by FY2024.
+            </div>
+            <div class="caveat-box">
+                <strong>Data Limitations:</strong> Market share is based on subscriber volume rather than Adjusted Gross Revenue (AGR) revenue market share.
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================================================================== -->
+    <!-- QUESTION 3 SECTION                                                   -->
+    <!-- ==================================================================== -->
+    <section id="q3" class="section-card">
+        <h2>🛍️ Question 3: How has Reliance expanded its retail footprint and consumer reach over time?</h2>
+        <p>This section analyzes store network expansion, operational floor area, registered customer base, and top-line revenue growth (FY2017–FY2024).</p>
+
+        <!-- Chart 3.1 -->
+        <div class="chart-box">
+            <div class="chart-header">
+                <span>3.1 Retail Revenue Growth vs Physical Store Count (Dual-Axis)</span>
+                <div class="chart-header-actions">
+                    <a href="outputs/retail/q3_retail_revenue_vs_stores_dual_axis.html" target="_blank">↗ Open Fullscreen</a>
+                </div>
+            </div>
+            <iframe class="chart-iframe" src="outputs/retail/q3_retail_revenue_vs_stores_dual_axis.html"></iframe>
+        </div>
+        <div class="insight-box">
+            <div>
+                <strong>Key Insight:</strong> Store count grew <strong>5.21x</strong> (3,616 to 18,837 stores, 26.59% CAGR) while Revenue grew <strong>9.09x</strong> (₹33,765 Cr to ₹306,786 Cr, 37.06% CAGR), with revenue per store rising from <strong>₹9.34 Cr to ₹16.29 Cr/store</strong> (+74.42%).
+            </div>
+            <button class="explanation-btn" onclick="toggleExplanation('exp-3-1')">📋 [ Detailed Explanation ]</button>
+        </div>
+
+        <!-- Explanation Panel 3.1 -->
+        <div id="exp-3-1" class="explanation-panel" style="display: none;">
+            <div class="explanation-title">
+                <span>Detailed Explanation: Retail Revenue vs Store Expansion</span>
+                <button class="close-btn" onclick="toggleExplanation('exp-3-1')">✖ Close</button>
+            </div>
+            <div class="exp-section">
+                <div class="exp-heading">A. What the Chart Shows</div>
+                <div class="exp-body">A dual-axis chart comparing Reliance Retail Gross Revenue (₹ Crore, Bars on left axis) alongside Total Operating Store Count (Line on right axis) from FY2017 to FY2024, with both axes zero-aligned.</div>
+            </div>
+            <div class="exp-section">
+                <div class="exp-heading">B. Overall Trend</div>
+                <div class="exp-body">Strong simultaneous expansion of physical footprint and revenue, with revenue growth accelerating faster than physical store additions.</div>
+            </div>
+            <div class="exp-section">
+                <div class="exp-heading">C. Growth Trajectory Analysis</div>
+                <div class="exp-body">
+                    <ul>
+                        <li><strong>Store Count:</strong> Expanded from <span class="metric-badge">3,616 stores (FY17)</span> to <span class="metric-badge">18,837 stores (FY24)</span> (+15,221 net store additions).</li>
+                        <li><strong>Gross Revenue:</strong> Scaled from <span class="metric-badge">₹33,765 Cr (FY17)</span> to <span class="metric-badge">₹3,06,786 Cr (FY24)</span> (+₹2,73,021 Cr).</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="exp-section">
+                <div class="exp-heading">D. Quantitative Changes (Calculated from Data)</div>
+                <div class="exp-body">
+                    <ul>
+                        <li><strong>Store Count 7-Year CAGR:</strong> <span class="metric-badge">26.59%</span> (5.21x expansion).</li>
+                        <li><strong>Retail Revenue 7-Year CAGR:</strong> <span class="metric-badge">37.06%</span> (9.09x expansion).</li>
+                        <li><strong>Average Revenue Throughput per Store:</strong> Increased from <span class="metric-badge">₹9.34 Cr/store (FY17)</span> to <span class="metric-badge">₹16.29 Cr/store (FY24)</span> (+74.42% productivity gain).</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="exp-section">
+                <div class="exp-heading">E. Growth Factors (Documented Context)</div>
+                <div class="exp-body">
+                    <ul>
+                        <li><em>Data observation:</em> Revenue expanded 9.1x while store count expanded 5.2x.</li>
+                        <li><em>Documented context:</em> Reliance Retail Annual Reports document that growth was driven by nationwide expansion across grocery, consumer electronics, and fashion apparel formats, paired with higher sales density in mature stores and digital commerce (JioMart) order fulfillment.</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="takeaway-box">
+                <strong>Key Takeaway:</strong> Reliance Retail's scaling over FY2017–FY2024 was achieved through a dual strategy: aggressive physical store network rollout across India alongside a 74% increase in revenue productivity per store.
+            </div>
+            <div class="caveat-box">
+                <strong>Data Limitations:</strong> Store counts aggregate different store formats (ranging from small neighborhood stores to large hypermarkets) with varying floor spaces and unit revenues.
+            </div>
+        </div>
+
+        <!-- Chart 3.2 -->
+        <div class="chart-box" style="margin-top: 30px;">
+            <div class="chart-header">
+                <span>3.2 Registered Customer Base & Operational Floor Area Scaling</span>
+                <div class="chart-header-actions">
+                    <a href="outputs/retail/q3_retail_customers_and_area_trend.html" target="_blank">↗ Open Fullscreen</a>
+                </div>
+            </div>
+            <iframe class="chart-iframe" src="outputs/retail/q3_retail_customers_and_area_trend.html"></iframe>
+        </div>
+        <div class="insight-box">
+            <div>
+                <strong>Key Insight:</strong> Registered customer base grew <strong>8.69x</strong> (35.0M to 304.0M, 36.18% CAGR) while operational retail floor area expanded <strong>5.86x</strong> (13.5M to 79.1M sq ft, 28.73% CAGR).
+            </div>
+            <button class="explanation-btn" onclick="toggleExplanation('exp-3-2')">📋 [ Detailed Explanation ]</button>
+        </div>
+
+        <!-- Explanation Panel 3.2 -->
+        <div id="exp-3-2" class="explanation-panel" style="display: none;">
+            <div class="explanation-title">
+                <span>Detailed Explanation: Customer Base & Floor Space Scaling</span>
+                <button class="close-btn" onclick="toggleExplanation('exp-3-2')">✖ Close</button>
+            </div>
+            <div class="exp-section">
+                <div class="exp-heading">A. What the Chart Shows</div>
+                <div class="exp-body">A dual-axis line chart comparing Registered Retail Customer Base (Millions, left axis) against Total Retail Operational Floor Space (Million Square Feet, right axis) from FY2017 to FY2024.</div>
+            </div>
+            <div class="exp-section">
+                <div class="exp-heading">B. Overall Trend</div>
+                <div class="exp-body">Consistent, compounding growth across both consumer reach (customer accounts) and physical real estate footprint across Indian urban and rural markets.</div>
+            </div>
+            <div class="exp-section">
+                <div class="exp-heading">C. Indicator Scaling Analysis</div>
+                <div class="exp-body">
+                    <ul>
+                        <li><strong>Registered Customers:</strong> Expanded from <span class="metric-badge">35.0 Million (FY17)</span> to <span class="metric-badge">304.0 Million (FY24)</span> (+269.0M customer accounts).</li>
+                        <li><strong>Retail Floor Area:</strong> Expanded from <span class="metric-badge">13.5 Million sq ft (FY17)</span> to <span class="metric-badge">79.1 Million sq ft (FY24)</span> (+65.6M sq ft of retail space).</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="exp-section">
+                <div class="exp-heading">D. Quantitative Changes (Calculated from Data)</div>
+                <div class="exp-body">
+                    <ul>
+                        <li><strong>Customer Base 7-Year CAGR:</strong> <span class="metric-badge">36.18%</span> (8.69x expansion).</li>
+                        <li><strong>Floor Area 7-Year CAGR:</strong> <span class="metric-badge">28.73%</span> (5.86x expansion).</li>
+                        <li><strong>Average Store Size:</strong> Grew from <span class="metric-badge">3,733 sq ft/store (FY17)</span> to <span class="metric-badge">4,199 sq ft/store (FY24)</span>.</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="exp-section">
+                <div class="exp-heading">E. Growth Factors (Documented Context)</div>
+                <div class="exp-body">
+                    <ul>
+                        <li><em>Data observation:</em> Customer base growth (36.18% CAGR) outpaced physical space expansion (28.73% CAGR).</li>
+                        <li><em>Documented context:</em> Reliance Retail filings attribute customer acquisition to integrated retail loyalty programs, aggressive geographical expansion into Tier 2–4 towns, and omni-channel digital onboarding.</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="takeaway-box">
+                <strong>Key Takeaway:</strong> The expansion of Reliance Retail's registered customer base to over 300 million and operational area to 79 million sq ft captures its widespread consumer presence across India.
+            </div>
+            <div class="caveat-box">
+                <strong>Data Limitations:</strong> Registered customer figures reflect cumulative loyalty accounts and active customer IDs, which may include multi-card holders or duplicate consumer profiles.
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        RELYNDIA Project — Dept. of IS&E, NIE Mysuru — BISL504 Data Visualization Lab
+    </footer>
+</div>
+
+<script>
+    function toggleExplanation(id) {
+        const panel = document.getElementById(id);
+        if (panel) {
+            if (panel.style.display === "none" || panel.style.display === "") {
+                panel.style.display = "block";
+                panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            } else {
+                panel.style.display = "none";
+            }
+        }
+    }
+</script>
+
+</body>
+</html>
